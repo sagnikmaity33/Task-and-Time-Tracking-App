@@ -49,6 +49,53 @@ app.use("/task",taskController)
 app.use("/time",timeController)
 app.use("/ai",aiController)
 
+// Health check endpoint
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        status: "OK",
+        message: "Server is running",
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || "development",
+        version: "1.0.0"
+    });
+});
+
+// Detailed health check endpoint
+app.get("/health/detailed", async (req, res) => {
+    try {
+        const mongoose = require("mongoose");
+        const dbStatus = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
+        
+        res.status(200).json({
+            status: "OK",
+            message: "Server is running with detailed status",
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            environment: process.env.NODE_ENV || "development",
+            version: "1.0.0",
+            database: {
+                status: dbStatus,
+                connectionState: mongoose.connection.readyState
+            },
+            memory: {
+                used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + " MB",
+                total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + " MB"
+            },
+            services: {
+                ai: process.env.GEMINI_API_KEY ? "configured" : "not configured",
+                jwt: process.env.JWT_SECRET ? "configured" : "not configured"
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "ERROR",
+            message: "Health check failed",
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
 
 app.post(
     "/register",
