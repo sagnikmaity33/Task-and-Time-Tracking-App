@@ -62,6 +62,22 @@ app.get("/health", (req, res) => {
     });
 });
 
+// Simple test endpoint
+app.get("/", (req, res) => {
+    res.status(200).json({
+        message: "Task Manager API is running",
+        timestamp: new Date().toISOString(),
+        endpoints: {
+            health: "/health",
+            login: "/login",
+            register: "/register",
+            tasks: "/task",
+            time: "/time",
+            ai: "/ai"
+        }
+    });
+});
+
 // Detailed health check endpoint
 app.get("/health/detailed", async (req, res) => {
     try {
