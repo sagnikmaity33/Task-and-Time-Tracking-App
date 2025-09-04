@@ -15,7 +15,8 @@ const corsOptions = {
       'http://localhost:3000',
       'http://localhost:3001',
       'http://localhost:3002',
-      'https://mytask-managerapp.herokuapp.com'
+      'https://task-and-time-tracking-app-mj19.vercel.app',
+      
     ];
     
     if (allowedOrigins.indexOf(origin) !== -1) {
