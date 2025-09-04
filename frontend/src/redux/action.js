@@ -9,6 +9,9 @@ export const ADD_USER="ADD_USER"
 export const ADD_TASK="ADD_TASK"
 export const RTASK="RTASK"
 export const AUTH="AUTH"
+export const AI_SUGGESTIONS="AI_SUGGESTIONS"
+export const AI_LOADING="AI_LOADING"
+export const AI_ERROR="AI_ERROR"
  
 const addUser=(data)=>{
     return {
@@ -195,8 +198,8 @@ export const register=(data,setCookie)=>{
                 method:"PATCH",
                 body:JSON.stringify(data),
                 headers: {
-                   
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                   },
              })
          
@@ -215,8 +218,8 @@ export const register=(data,setCookie)=>{
                 method:"PATCH",
                 body:JSON.stringify(data),
                 headers: {
-                   
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                   },
              })
           
@@ -234,8 +237,10 @@ export const register=(data,setCookie)=>{
         try {
              await fetch(`${API_BASE_URL}/task/${taskid}`,{
                 method:"DELETE",
-             
-               
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
              })
           
          
@@ -246,4 +251,129 @@ export const register=(data,setCookie)=>{
         } 
      }
  }
+
+// AI Actions
+const setAISuggestions = (data) => {
+    return {
+        type: AI_SUGGESTIONS,
+        payload: data
+    }
+}
+
+const setAILoading = (loading) => {
+    return {
+        type: AI_LOADING,
+        payload: loading
+    }
+}
+
+const setAIError = (error) => {
+    return {
+        type: AI_ERROR,
+        payload: error
+    }
+}
+
+export const generateAISuggestions = (input) => {
+    return async (dispatch, getState, api) => {
+        try {
+            dispatch(setAILoading(true))
+            dispatch(setAIError(null))
+
+            const res = await fetch(`${API_BASE_URL}/ai/generate-suggestions`, {
+                method: "POST",
+                body: JSON.stringify({ input }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+
+            const received = await res.json()
+            
+            if (received.success) {
+                dispatch(setAISuggestions(received.data))
+            } else {
+                dispatch(setAIError(received.message || 'Failed to generate suggestions'))
+            }
+        } catch (error) {
+            console.log('AI Generation Error:', error)
+            dispatch(setAIError('Network error. Please try again.'))
+        } finally {
+            dispatch(setAILoading(false))
+        }
+    }
+}
+
+export const clearAISuggestions = () => {
+    return (dispatch) => {
+        dispatch(setAISuggestions(null))
+        dispatch(setAIError(null))
+    }
+}
+
+// Timer Actions
+export const startTimer = (taskId) => {
+    return async (dispatch, getState, api) => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/time/start/${taskId}`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${Cookies.get("Token")}`
+                }
+            })
+            const received = await res.json()
+            if (received.message === "started") {
+                alert("Timer started successfully!")
+            } else {
+                alert(received.message)
+            }
+        } catch (error) {
+            console.log('Start Timer Error:', error)
+            alert('Failed to start timer')
+        }
+    }
+}
+
+export const stopTimer = (taskId) => {
+    return async (dispatch, getState, api) => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/time/stop/${taskId}`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${Cookies.get("Token")}`
+                }
+            })
+            const received = await res.json()
+            if (received.message === "stopped") {
+                alert("Timer stopped successfully!")
+            } else {
+                alert(received.message)
+            }
+        } catch (error) {
+            console.log('Stop Timer Error:', error)
+            alert('Failed to stop timer')
+        }
+    }
+}
+
+export const getTimeLogs = (taskId) => {
+    return async (dispatch, getState, api) => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/time/task/${taskId}`, {
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${Cookies.get("Token")}`
+                }
+            })
+            const received = await res.json()
+            return received
+        } catch (error) {
+            console.log('Get Time Logs Error:', error)
+            return null
+        }
+    }
+}
    

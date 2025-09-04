@@ -15,8 +15,14 @@ router.get("/:id",authenticate,async(req,res)=>{
               return  res.status(200).send({data:tasks,status:"success"})
             }
             else{
-            tasks=await Task.find({userId:{$eq:req.id},status:filter}).lean().exec()
-            res.status(200).send({data:tasks,status:"success"})
+                // Convert frontend filter to database status format
+                let dbStatus = filter;
+                if(filter === "pending") dbStatus = "Pending";
+                else if(filter === "completed") dbStatus = "Completed";
+                else if(filter === "in-progress") dbStatus = "In Progress";
+                
+                tasks=await Task.find({userId:{$eq:req.id},status:dbStatus}).lean().exec()
+                res.status(200).send({data:tasks,status:"success"})
             }
         }
         else{
@@ -25,8 +31,14 @@ router.get("/:id",authenticate,async(req,res)=>{
              res.status(200).send({data:tasks,status:"success"})
             }
             else{
-                tasks=await Task.find({userId:{$eq:req.id},tag:req.params.id,status:filter}).lean().exec()
-            res.status(200).send({data:tasks,status:"success"})
+                // Convert frontend filter to database status format
+                let dbStatus = filter;
+                if(filter === "pending") dbStatus = "Pending";
+                else if(filter === "completed") dbStatus = "Completed";
+                else if(filter === "in-progress") dbStatus = "In Progress";
+                
+                tasks=await Task.find({userId:{$eq:req.id},tag:req.params.id,status:dbStatus}).lean().exec()
+                res.status(200).send({data:tasks,status:"success"})
             }
         }
     } 
@@ -63,6 +75,13 @@ router.get("/gettask/auth",authenticate,async(req,res)=>{
 
 router.patch("/:id",authenticate,async(req,res)=>{
     try {
+        // Convert frontend status to database format if status is being updated
+        if(req.body.status){
+            if(req.body.status === "pending") req.body.status = "Pending";
+            else if(req.body.status === "completed") req.body.status = "Completed";
+            else if(req.body.status === "in-progress") req.body.status = "In Progress";
+        }
+        
         const task=await Task.findOneAndUpdate({_id:req.params.id, userId:req.id},req.body)
         if(!task){
             return res.status(404).send({message:"Task not found"})
@@ -94,6 +113,14 @@ router.patch("/:id/:subid",authenticate,async(req,res)=>{
         if(!taskOwner){
             return res.status(404).send({message:"Task not found"})
         }
+        
+        // Convert frontend status to database format if status is being updated
+        if(req.body.status){
+            if(req.body.status === "pending") req.body.status = "Pending";
+            else if(req.body.status === "completed") req.body.status = "Completed";
+            else if(req.body.status === "in-progress") req.body.status = "In Progress";
+        }
+        
         await Task.updateOne({_id:req.params.id,"subtasks._id":req.params.subid},{$set:{"subtasks.$":req.body}})
         res.status(200).send({message:"success"})
     } 

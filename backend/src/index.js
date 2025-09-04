@@ -42,8 +42,12 @@ app.use(express.json())
 
 
 const taskController=require("./controllers/task.controller")
+const timeController=require("./controllers/time.controller")
+const aiController=require("./controllers/ai.controller")
 
 app.use("/task",taskController)
+app.use("/time",timeController)
+app.use("/ai",aiController)
 
 
 app.post(
