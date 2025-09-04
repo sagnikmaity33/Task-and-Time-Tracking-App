@@ -21,7 +21,7 @@ const register=async(req,res)=>{
     
         let user=await User.findOne({email:{$eq:req.body.email}})
         if(user){
-            return res.status(400).send({message:"email id already registered"})
+            return res.status(400).json({ errors: [{ msg: "email id already registered" }] })
         }
         user=await User.create(req.body)
         let token=generateToken(user)
@@ -29,7 +29,7 @@ const register=async(req,res)=>{
         
     } 
     catch (error) {
-        return res.status(400).send(error.message)
+        return res.status(500).json({ error: error.message })
     }
 }
 
@@ -37,12 +37,12 @@ const login=async(req,res)=>{
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-          return res.status(400).json({ message: errors.array() });
+          return res.status(400).json({ errors: errors.array() });
         }
     
         let user=await User.findOne({email:req.body.email})
         if(!user){
-            return res.status(400).send({message:"email id not registered"})
+            return res.status(400).json({ errors: [{ msg: "email id not registered" }] })
 
         }
         const match=user.checkpassword(req.body.password)
@@ -53,12 +53,12 @@ const login=async(req,res)=>{
            return res.status(200).send({Name:user.name,Token:token,message:"success"})
         }
 
-  return res.status(400).send({message:"incorrect password"})
+  return res.status(400).json({ errors: [{ msg: "incorrect password" }] })
         
-    
+        
 } 
     catch (error) {
-        return res.status(400).send(error.message)
+        return res.status(500).json({ error: error.message })
     }
 }
 
