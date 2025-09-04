@@ -6,7 +6,6 @@ import Cookies from 'js-cookie'
 import { useNavigate } from "react-router-dom"
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button';
-import { testApiConnection, testLoginEndpoint } from "../../utils/apiTest";
 
 import "./login.css"
 
@@ -57,23 +56,6 @@ export const Login=()=>{
                  })
                   }} >Submit</Button>
             <br></br>
-            <br></br>
-            
-            {/* Debug buttons - remove in production */}
-            <div style={{marginTop: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '5px'}}>
-                <h4>Debug Tools (Remove in Production)</h4>
-                <Button variant="outlined" onClick={testApiConnection} style={{margin: '5px'}}>
-                    Test API Connection
-                </Button>
-                <Button variant="outlined" onClick={testLoginEndpoint} style={{margin: '5px'}}>
-                    Test Login Endpoint
-                </Button>
-                <div style={{fontSize: '12px', marginTop: '10px'}}>
-                    <p>Environment: {process.env.NODE_ENV}</p>
-                    <p>API URL: {process.env.REACT_APP_API_BASE_URL || 'Not set'}</p>
-                </div>
-            </div>
-            
             <br></br>
             <Link to="/register">Don't have an account? Sign up</Link>
             

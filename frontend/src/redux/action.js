@@ -3,38 +3,7 @@
 import Cookies from 'js-cookie'
 
 // API base URL from environment variables
-const getApiBaseUrl = () => {
-    // Check if we're in production
-    const isProduction = process.env.NODE_ENV === 'production';
-    
-    // Get the environment variable
-    const envUrl = process.env.REACT_APP_API_BASE_URL;
-    
-    let baseUrl;
-    
-    if (envUrl) {
-        // Use environment variable if set
-        baseUrl = envUrl;
-    } else if (isProduction) {
-        // Production default
-        baseUrl = "https://task-and-time-tracking-app-mj19.vercel.app";
-    } else {
-        // Development default
-        baseUrl = "http://localhost:3001";
-    }
-    
-    // Clean up the URL
-    baseUrl = baseUrl.replace(/\/$/, ''); // Remove trailing slash
-    
-    // Debug logging
-    console.log('Environment:', process.env.NODE_ENV);
-    console.log('REACT_APP_API_BASE_URL:', process.env.REACT_APP_API_BASE_URL);
-    console.log('Final API_BASE_URL:', baseUrl);
-    
-    return baseUrl;
-}
-
-const API_BASE_URL = getApiBaseUrl()
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:3001"
 
 export const ADD_USER="ADD_USER"
 export const ADD_TASK="ADD_TASK"
@@ -77,9 +46,6 @@ export const Auth=(data)=>{
 export const login=(data,setCookie)=>{
        return async(dispatch,getState,api)=>{
            try {
-               console.log('API_BASE_URL:', API_BASE_URL)
-               console.log('Login URL:', `${API_BASE_URL}/login`)
-               
                const res=await fetch(`${API_BASE_URL}/login`,{
                    method:"POST",
                    body:JSON.stringify(data),
@@ -88,18 +54,8 @@ export const login=(data,setCookie)=>{
                    
                   },
                })
-               
-               console.log('Response status:', res.status)
-               console.log('Response headers:', res.headers)
-               
-               if (!res.ok) {
-                   throw new Error(`HTTP error! status: ${res.status}`)
-               }
-               
-               const received=await res.json()
-               console.log('Response data:', received)
-               
-               if(received.Token && received.Name){
+                  const received=await res.json()
+                  if(received.Token && received.Name){
                   Cookies.set('Name',`${received.Name}`, { expires: 7 })
                   Cookies.set('Token',`${received.Token}`, { expires: 7 })
                   alert(received.message)
@@ -109,18 +65,17 @@ export const login=(data,setCookie)=>{
                     if(received.errors){
                         alert(received.errors[0].msg)
                       }
-                    if(received.message && received.message[0] && received.message[0].msg){
+                    if(received.message[0].msg){
                         alert(received.message[0].msg)
                     }
                     else{
-                    alert(received.message || 'Login failed')
+                    alert(received.message)
                     }
                   }
                   
               } 
            catch (error) {
-               console.error('Login error:', error)
-               alert('Login failed: ' + error.message)
+               console.log(error)
            }
        }
            
