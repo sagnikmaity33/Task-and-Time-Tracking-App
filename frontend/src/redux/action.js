@@ -5,12 +5,33 @@ import Cookies from 'js-cookie'
 // API base URL from environment variables
 const getApiBaseUrl = () => {
     // Check if we're in production
-    if (process.env.NODE_ENV === 'production') {
-        // For production, use the deployed backend URL
-        return process.env.REACT_APP_API_BASE_URL || "https://task-and-time-tracking-app-mj19.vercel.app"
+    const isProduction = process.env.NODE_ENV === 'production';
+    
+    // Get the environment variable
+    const envUrl = process.env.REACT_APP_API_BASE_URL;
+    
+    let baseUrl;
+    
+    if (envUrl) {
+        // Use environment variable if set
+        baseUrl = envUrl;
+    } else if (isProduction) {
+        // Production default
+        baseUrl = "https://task-and-time-tracking-app-mj19.vercel.app";
+    } else {
+        // Development default
+        baseUrl = "http://localhost:3001";
     }
-    // For development, use localhost
-    return process.env.REACT_APP_API_BASE_URL || "http://localhost:3001"
+    
+    // Clean up the URL
+    baseUrl = baseUrl.replace(/\/$/, ''); // Remove trailing slash
+    
+    // Debug logging
+    console.log('Environment:', process.env.NODE_ENV);
+    console.log('REACT_APP_API_BASE_URL:', process.env.REACT_APP_API_BASE_URL);
+    console.log('Final API_BASE_URL:', baseUrl);
+    
+    return baseUrl;
 }
 
 const API_BASE_URL = getApiBaseUrl()
