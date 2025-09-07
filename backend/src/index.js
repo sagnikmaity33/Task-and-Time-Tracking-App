@@ -6,29 +6,56 @@ const authenticate=require("./middlewares/authenticate")
 var cors = require('cors')
 
 // Configure CORS properly for both development and production
+// const corsOptions = {
+//   origin: function (origin, callback) {
+//     // Allow requests with no origin (like mobile apps or curl requests)
+//     if (!origin) return callback(null, true);
+    
+//     const allowedOrigins = [
+//       'http://localhost:3000',
+//       'http://localhost:3001',
+//       'http://localhost:3002',
+//       'task-and-time-tracking-app-7lmn.vercel.app', //frontend
+//         // backend
+//   'task-and-time-tracking-app.vercel.app' //backend
+      
+//     ];
+    
+//     if (allowedOrigins.indexOf(origin) !== -1) {
+//       callback(null, true);
+//     } else {
+//       // For production, you might want to be more restrictive
+//       if (process.env.NODE_ENV === 'production') {
+//         callback(new Error('Not allowed by CORS'));
+//       } else {
+//         callback(null, true); // Allow in development
+//       }
+//     }
+//   },
+//   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+//   credentials: true,
+//   optionsSuccessStatus: 200,
+//   preflightContinue: false
+// }
+
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
+  .split(",")
+  .map(origin => origin.trim())
+  .filter(origin => origin.length > 0);
+
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (mobile apps, curl)
     if (!origin) return callback(null, true);
-    
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:3002',
-      'task-and-time-tracking-app-7lmn.vercel.app', //frontend
-        // backend
-  'task-and-time-tracking-app.vercel.app' //backend
-      
-    ];
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
+
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      // For production, you might want to be more restrictive
       if (process.env.NODE_ENV === 'production') {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error(`Not allowed by CORS: ${origin}`));
       } else {
-        callback(null, true); // Allow in development
+        callback(null, true); // Allow all in dev
       }
     }
   },
@@ -37,7 +64,9 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 200,
   preflightContinue: false
-}
+};
+
+// app.use(cors(corsOptions));
 
 app.use(cors(corsOptions))
 app.use(express.json())
