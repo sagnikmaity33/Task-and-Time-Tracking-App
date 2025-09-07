@@ -15,9 +15,9 @@ const corsOptions = {
       'http://localhost:3000',
       'http://localhost:3001',
       'http://localhost:3002',
-      'https://task-and-time-tracking-app-mj19.vercel.app', //frontend
+      'task-and-time-tracking-app-7lmn.vercel.app', //frontend
         // backend
-  'https://task-and-time-tracking-app-3igm.vercel.app' //backend
+  'task-and-time-tracking-app.vercel.app' //backend
       
     ];
     
