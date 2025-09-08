@@ -17,6 +17,8 @@ const authenticate=async(req,res,next)=>{
 
     }
     const token=req.headers.authorization.trim().split(" ")[1]
+    console.log("Auth header:", req.headers.authorization); //for testing
+
     let decoded
    try {
        decoded=await verifyToken(token)
